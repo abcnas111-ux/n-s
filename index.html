@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بنك أسئلة العلوم التفاعلي - مراجعة شاملة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <style>
+        :root {
+            --primary: #0f766e;
+            --primary-dark: #115e59;
+            --primary-light: #ccfbf1;
+            --secondary: #0284c7;
+            --bg: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --correct-bg: #dcfce7;
+            --correct-border: #16a34a;
+            --correct-text: #14532d;
+            --wrong-bg: #fee2e2;
+            --wrong-border: #dc2626;
+            --wrong-text: #7f1d1d;
+            --border-color: #e2e8f0;
+            --zoom-scale: 1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.7;
+            padding-bottom: 60px;
+        }
+
+        /* Header & Controls */
+        header {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: white;
+            padding: 18px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        .header-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .title-area h1 {
+            font-size: 1.35rem;
+            font-weight: 800;
+        }
+
+        .title-area p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .controls-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 4px 8px;
+            gap: 6px;
+        }
+
+        .zoom-btn {
+            background: white;
+            color: var(--primary-dark);
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.15s;
+        }
+
+        .zoom-btn:hover {
+            transform: scale(1.08);
+        }
+
+        .zoom-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            min-width: 45px;
+            text-align: center;
+        }
+
+        .stats-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        /* Filter Navigation */
+        .filters-wrapper {
+            max-width: 1100px;
+            margin: 20px auto 10px;
+            padding: 0 15px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 18px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            margin-bottom: 12px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-box:focus {
+            border-color: var(--primary);
+        }
+
+        .category-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tab-btn {
+            background: white;
+            border: 1.5px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Quiz Container with Dynamic Zoom */
+        .quiz-container {
+            max-width: 1100px;
+            margin: 15px auto;
+            padding: 0 15px;
+            font-size: calc(16px * var(--zoom-scale));
+        }
+
+        .question-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s;
+        }
+
+        .q-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            gap: 10px;
+        }
+
+        .q-num {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 0.85em;
+        }
+
+        .q-cat {
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 0.8em;
+            font-weight: 700;
+        }
+
+        .q-text {
+            font-size: 1.15em;
+            font-weight: 700;
+            margin-bottom: 18px;
+            color: #0f172a;
+        }
+
+        /* Diagram Container with Zoom */
+        .diagram-box {
+            background: #f8fafc;
+            border: 1.5px dashed #94a3b8;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 18px;
+            text-align: center;
+            position: relative;
+            overflow: auto;
+        }
+
+        .diagram-box svg {
+            max-width: 100%;
+            height: auto;
+            transition: transform 0.25s ease;
+            cursor: zoom-in;
+        }
+
+        .diagram-box.zoomed svg {
+            transform: scale(1.45);
+            transform-origin: center top;
+            margin-bottom: 70px;
+            cursor: zoom-out;
+        }
+
+        .diagram-hint {
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 0.78em;
+            color: var(--secondary);
+            font-weight: 700;
+            background: #e0f2fe;
+            padding: 3px 10px;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        /* Options Grid */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: #f8fafc;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px 16px;
+            text-align: right;
+            font-size: 1em;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background: #f1f5f9;
+            border-color: var(--primary);
+        }
+
+        .option-letter {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: white;
+            border: 1.5px solid #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.85em;
+            flex-shrink: 0;
+        }
+
+        .option-btn.correct {
+            background: var(--correct-bg);
+            border-color: var(--correct-border);
+            color: var(--correct-text);
+        }
+
+        .option-btn.correct .option-letter {
+            background: var(--correct-border);
+            color: white;
+            border-color: var(--correct-border);
+        }
+
+        .option-btn.wrong {
+            background: var(--wrong-bg);
+            border-color: var(--wrong-border);
+            color: var(--wrong-text);
+        }
+
+        .option-btn.wrong .option-letter {
+            background: var(--wrong-border);
+            color: white;
+            border-color: var(--wrong-border);
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+        }
+
+        /* Explanation Box */
+        .explanation-box {
+            margin-top: 16px;
+            padding: 16px;
+            border-radius: 12px;
+            background: #f0fdf4;
+            border-right: 5px solid var(--primary);
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .explanation-box.show {
+            display: block;
+        }
+
+        .explanation-title {
+            font-weight: 800;
+            color: var(--primary-dark);
+            margin-bottom: 6px;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .explanation-text {
+            font-size: 0.95em;
+            color: #1e293b;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .reset-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .reset-btn:hover {
+            background: #dc2626;
+        }
+
+        @media (max-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            .header-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .controls-bar {
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-container">
+        <div class="title-area">
+            <h1>بنك أسئلة تخصص العلوم التفاعلي</h1>
+            <p>مراجعة شاملة ما قبل الامتحان (أحياء • كيمياء • فيزياء • علوم الأرض • رسومات وتفاعلات)</p>
+        </div>
+        <div class="controls-bar">
+            <div class="zoom-controls" title="تكبير وتصغير الخط والأسئلة">
+                <button class="zoom-btn" onclick="changeZoom(-0.1)">-</button>
+                <span class="zoom-label" id="zoomVal">100%</span>
+                <button class="zoom-btn" onclick="changeZoom(0.1)">+</button>
+                <button class="zoom-btn" onclick="resetZoom()" style="width:auto; padding:0 8px; font-size:0.75rem;">إعادة</button>
+            </div>
+            <div class="stats-badge" id="scoreDisplay">النتيجة: 0 / 0</div>
+            <button class="reset-btn" onclick="resetQuiz()">إعادة الاختبار</button>
+        </div>
+    </div>
+</header>
+
+<div class="filters-wrapper">
+    <input type="text" id="searchInput" class="search-box" placeholder="ابحث عن سؤال أو مصطلح (مثال: الجمبري، نجم البحر، الأسترة، قانون كبلر، الميتوكوندريا...)" onkeyup="filterQuestions()">
+    <div class="category-tabs" id="categoryTabs">
+        <button class="tab-btn active" onclick="setCategory('all', this)">الكل (<span id="count-all">0</span>)</button>
+        <button class="tab-btn" onclick="setCategory('أسئلة الامتحانات والرسومات', this)">أسئلة الامتحانات والرسومات</button>
+        <button class="tab-btn" onclick="setCategory('الأحياء والتشريح', this)">الأحياء والتشريح</button>
+        <button class="tab-btn" onclick="setCategory('الكيمياء', this)">الكيمياء</button>
+        <button class="tab-btn" onclick="setCategory('الفيزياء', this)">الفيزياء</button>
+        <button class="tab-btn" onclick="setCategory('علوم الأرض والفضاء', this)">علوم الأرض والفضاء</button>
+        <button class="tab-btn" onclick="setCategory('المعادلات والتفاعلات', this)">المعادلات والتفاعلات</button>
+    </div>
+</div>
+
+<div class="quiz-container" id="quizContainer"></div>
+
+<script>
+    // الرسومات التوضيحية المرفقة بالملف بصيغة SVG عالية الدقة قابلة للزووم
+    const diagrams = {
+        shrimp_abdomen: `
+            <svg viewBox="0 0 650 230" width="600" xmlns="http://www.w3.org/2000/svg">
+                <rect width="650" height="230" fill="#ffffff" rx="10"/>
+                <text x="325" y="25" font-size="16" font-weight="bold" text-anchor="middle" fill="#0f766e">زوائد منطقة البطن في الجمبري (6 أزواج على العقل 15 - 20)</text>
+                
+                <!-- العقلة 15 -->
+                <rect x="440" y="45" width="190" height="165" fill="#f0fdfa" stroke="#0f766e" stroke-width="2" rx="8"/>
+                <text x="535" y="68" font-size="13" font-weight="bold" text-anchor="middle" fill="#115e59">الزوج الأول (العقلة 15)</text>
+                <text x="535" y="88" font-size="12" text-anchor="middle" fill="#334155">الرجلان التناسليتان</text>
+                <ellipse cx="535" cy="135" rx="22" ry="35" fill="#99f6e4" stroke="#0f766e" stroke-width="1.5"/>
+                <text x="535" y="190" font-size="11" text-anchor="middle" fill="#475569">لتمييز الذكر عن الأنثى</text>
+
+                <!-- العقل 16-19 -->
+                <rect x="230" y="45" width="190" height="165" fill="#eff6ff" stroke="#0284c7" stroke-width="2" rx="8"/>
+                <text x="325" y="68" font-size="13" font-weight="bold" text-anchor="middle" fill="#0369a1">الأزواج 2 إلى 5 (العقل 16-19)</text>
+                <text x="325" y="88" font-size="12" text-anchor="middle" fill="#334155">أرجل العوم (Pleopods)</text>
+                <path d="M325,105 L310,165 M325,105 L340,165" stroke="#0284c7" stroke-width="4" stroke-linecap="round"/>
+                <text x="325" y="190" font-size="11" text-anchor="middle" fill="#475569">السباحة ودفع الجسم للأمام</text>
+
+                <!-- العقلة 20 -->
+                <rect x="20" y="45" width="190" height="165" fill="#fef2f2" stroke="#dc2626" stroke-width="2" rx="8"/>
+                <text x="115" y="68" font-size="13" font-weight="bold" text-anchor="middle" fill="#991b1b">الزوج السادس (العقلة 20)</text>
+                <text x="115" y="88" font-size="12" text-anchor="middle" fill="#334155">الرجلان الذيليتان والعجب</text>
+                <polygon points="115,105 80,165 115,155 150,165" fill="#fecaca" stroke="#dc2626" stroke-width="1.5"/>
+                <text x="115" y="190" font-size="11" text-anchor="middle" fill="#475569">العوم للخلف وتفادي الخطر</text>
+            </svg>
+        `,
+        shrimp_thorax: `
+            <svg viewBox="0 0 650 220" width="600" xmlns="http://www.w3.org/2000/svg">
+                <rect width="650" height="220" fill="#ffffff" rx="10"/>
+                <text x="325" y="25" font-size="16" font-weight="bold" text-anchor="middle" fill="#0f766e">زوائد منطقة الصدر في الجمبري (8 أزواج: الحلقات 7 - 14)</text>
+                
+                <rect x="440" y="45" width="190" height="155" fill="#fefce8" stroke="#ca8a04" stroke-width="2" rx="8"/>
+                <text x="535" y="70" font-size="13" font-weight="bold" text-anchor="middle" fill="#854d0e">العقل 7 ، 8 ، 9</text>
+                <text x="535" y="95" font-size="13" font-weight="bold" text-anchor="middle" fill="#1e293b">الأرجل الفكية (3 أزواج)</text>
+                <text x="535" y="125" font-size="11" text-anchor="middle" fill="#475569">• نسر وتصفية الغذاء (7، 8)</text>
+                <text x="535" y="145" font-size="11" text-anchor="middle" fill="#475569">• الإمساك بالغذاء (9)</text>
+
+                <rect x="230" y="45" width="190" height="155" fill="#f0fdf4" stroke="#16a34a" stroke-width="2" rx="8"/>
+                <text x="325" y="70" font-size="13" font-weight="bold" text-anchor="middle" fill="#166534">العقل 10 ، 11 ، 12</text>
+                <text x="325" y="95" font-size="13" font-weight="bold" text-anchor="middle" fill="#1e293b">أرجل كلابية (خطافية)</text>
+                <text x="325" y="125" font-size="11" text-anchor="middle" fill="#475569">1- المشي في القاع</text>
+                <text x="325" y="145" font-size="11" text-anchor="middle" fill="#475569">2- القبض على الغذاء</text>
+                <text x="325" y="165" font-size="11" text-anchor="middle" fill="#475569">3- الدفاع عن النفس</text>
+
+                <rect x="20" y="45" width="190" height="155" fill="#f3e8ff" stroke="#7e22ce" stroke-width="2" rx="8"/>
+                <text x="115" y="70" font-size="13" font-weight="bold" text-anchor="middle" fill="#6b21a8">العقل 13 ، 14</text>
+                <text x="115" y="95" font-size="13" font-weight="bold" text-anchor="middle" fill="#1e293b">أرجل المشي (Pereiopods)</text>
+                <text x="115" y="125" font-size="11" text-anchor="middle" fill="#475569">تنتهي بمخلب (شدفة إصبعية)</text>
+                <text x="115" y="145" font-size="11" text-anchor="middle" fill="#475569">الوظيفة: المشي على القاع</text>
+            </svg>
+        `,
+        shrimp_head: `
+            <svg viewBox="0 0 650 220" width="600" xmlns="http://www.w3.org/2000/svg">
+                <rect width="650" height="220" fill="#ffffff" rx="10"/>
+                <text x="325" y="25" font-size="16" font-weight="bold" text-anchor="middle" fill="#0f766e">زوائد منطقة الرأس في الجمبري (5 أزواج: العقل 2 - 6)</text>
+                
+                <!-- زوائد أمام فمية -->
+                <rect x="390" y="45" width="240" height="155" fill="#e0f2fe" stroke="#0284c7" stroke-width="2" rx="8"/>
+                <text x="510" y="68" font-size="13" font-weight="bold" text-anchor="middle" fill="#0369a1">زوائد أمام فمية (العقل 2 و 3)</text>
+                <text x="510" y="95" font-size="12" font-weight="bold" text-anchor="middle" fill="#1e293b">2: الزبانيان الأولان (الزبيني)</text>
+                <text x="510" y="115" font-size="11" text-anchor="middle" fill="#475569">اللمس، الشم والذوق، التوازن والسمع</text>
+                <text x="510" y="145" font-size="12" font-weight="bold" text-anchor="middle" fill="#1e293b">3: الزبانيان الثانيان (الزباني)</text>
+                <text x="510" y="165" font-size="11" text-anchor="middle" fill="#475569">وظيفة لمسية واستشعار الخطر</text>
+
+                <!-- زوائد فمية -->
+                <rect x="20" y="45" width="350" height="155" fill="#fdf2f8" stroke="#db2777" stroke-width="2" rx="8"/>
+                <text x="195" y="68" font-size="13" font-weight="bold" text-anchor="middle" fill="#9d174d">الزوائد الفمية (العقل 4 ، 5 ، 6)</text>
+                <text x="195" y="95" font-size="12" font-weight="bold" text-anchor="middle" fill="#1e293b">4: اللحيان (Mandibles) ← طحن الغذاء ودفعه للفم</text>
+                <text x="195" y="125" font-size="12" font-weight="bold" text-anchor="middle" fill="#1e293b">5: الفكان الأولان (الفكيكان) ← الإمساك بالغذاء</text>
+                <text x="195" y="155" font-size="12" font-weight="bold" text-anchor="middle" fill="#1e293b">6: الفكان الثانيان ← الإمساك بالغذاء + إحداث تيار مائي</text>
+            </svg>
+        `,
+        amines_order: `
+            <svg viewBox="0 0 650 170" width="600" xmlns="http://www.w3.org/2000/svg">
+                <rect width="650" height="170" fill="#ffffff" rx="10"/>
+                <text x="325" y="25" font-size="15" font-weight="bold" text-anchor="middle" fill="#0f766e">ترتيب الأمينات تصاعديًا حسب استبدال ذرات الهيدروجين بمجموعات ألكيل (R)</text>
+                
+                <rect x="490" y="45" width="140" height="100" fill="#f1f5f9" stroke="#64748b" rx="8"/>
+                <text x="560" y="75" font-size="14" font-weight="bold" text-anchor="middle">NH3</text>
+                <text x="560" y="105" font-size="13" font-weight="bold" text-anchor="middle" fill="#0f766e">أمونيا</text>
+                <text x="560" y="125" font-size="11" text-anchor="middle" fill="#64748b">(0 مجموعة R)</text>
+
+                <text x="475" y="95" font-size="20" font-weight="bold" fill="#0f766e">←</text>
+
+                <rect x="335" y="45" width="135" height="100" fill="#f0fdfa" stroke="#0f766e" rx="8"/>
+                <text x="402" y="75" font-size="14" font-weight="bold" text-anchor="middle">R-NH2</text>
+                <text x="402" y="105" font-size="13" font-weight="bold" text-anchor="middle" fill="#0f766e">أمين أولي</text>
+                <text x="402" y="125" font-size="11" text-anchor="middle" fill="#64748b">(1 مجموعة R)</text>
+
+                <text x="320" y="95" font-size="20" font-weight="bold" fill="#0f766e">←</text>
+
+                <rect x="180" y="45" width="135" height="100" fill="#e0f2fe" stroke="#0284c7" rx="8"/>
+                <text x="247" y="75" font-size="14" font-weight="bold" text-anchor="middle">R2-NH</text>
+                <text x="247" y="105" font-size="13" font-weight="bold" text-anchor="middle" fill="#0369a1">أمين ثانوي</text>
+                <text x="247" y="125" font-size="11" text-anchor="middle" fill="#64748b">(2 مجموعة R)</text>
+
+                <text x="165" y="95" font-size="20" font-weight="bold" fill="#0f766e">←</text>
+
+                <rect x="20" y="45" width="140" height="100" fill="#fef3c7" stroke="#d97706" rx="8"/>
+                <text x="90" y="75" font-size="14" font-weight="bold" text-anchor="middle">R3-N</text>
+                <text x="90" y="105" font-size="13" font-weight="bold" text-anchor="middle" fill="#b45309">أمين ثالثي</text>
+                <text x="90" y="125" font-size="11" text-anchor="middle" fill="#64748b">(3 مجموعات R)</text>
+            </svg>
+        `,
+        newton_gravity: `
+            <svg viewBox="0 0 600 160" width="560" xmlns="http://www.w3.org/2000/svg">
+                <rect width="600" height="160" fill="#ffffff" rx="10"/>
+                <text x="300" y="25" font-size="15" font-weight="bold" text-anchor="middle" fill="#0f766e">قانون الجذب العام لنيوتن (قانون التربيع العكسي)</text>
+                
+                <circle cx="130" cy="85" r="32" fill="#38bdf8" stroke="#0284c7" stroke-width="2"/>
+                <text x="130" y="90" font-size="14" font-weight="bold" text-anchor="middle" fill="white">m1</text>
+
+                <circle cx="470" cy="85" r="40" fill="#fb923c" stroke="#ea580c" stroke-width="2"/>
+                <text x="470" y="90" font-size="14" font-weight="bold" text-anchor="middle" fill="white">m2</text>
+
+                <line x1="162" y1="85" x2="240" y2="85" stroke="#dc2626" stroke-width="3" marker-end="url(#arrow)"/>
+                <text x="200" y="75" font-size="13" font-weight="bold" fill="#dc2626">F1</text>
+
+                <line x1="430" y1="85" x2="355" y2="85" stroke="#dc2626" stroke-width="3"/>
+                <text x="390" y="75" font-size="13" font-weight="bold" fill="#dc2626">F2</text>
+
+                <line x1="130" y1="135" x2="470" y2="135" stroke="#475569" stroke-width="1.5" stroke-dasharray="5,5"/>
+                <text x="300" y="150" font-size="13" font-weight="bold" text-anchor="middle" fill="#1e293b">المسافة بين المركزين (r) | F = G (m1 × m2) / r²</text>
+            </svg>
+        `
+    };
+
+    // قاعدة بيانات شاملة لجميع أسئلة الملف مصنفة ومشروحة بالتفصيل
+    const quizData = [
+        // --- القسم الأول: أسئلة امتحانات سابقة ورسومات ---
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "بماذا تتصل أقدام نجم البحر الأنبوبية لتساعده على الالتصاق بالأسطح والحركة؟",
+            options: ["الممصات (البودات الماصة)", "الزوائد المفصلية", "الخلايا اللهبية", "القصيبات الهوائية"],
+            correct: 0,
+            exp: "تتصل الأقدام الأنبوبية في نجم البحر بممصات تعمل بالضغط الهيدروليكي عبر انقباض الأمبولة، مما يساعده على الالتصاق بالصخور والحركة والتغذية والتنفس."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "ما نوع التماثل في جسم نجم البحر البالغ؟",
+            options: ["تماثل إشعاعي", "تماثل جانبي", "عديم التماثل", "تماثل كروي"],
+            correct: 0,
+            exp: "ينتمي نجم البحر لشعبة شوكيات الجلد، ويتميز أفرادها البالغة بتماثل إشعاعي (خماسي غالباً) حيث تترتب الأذرع حول قرص مركزي."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "أين توجد الخياشيم في الجمبري؟",
+            options: ["منطقة الرأس الصدري", "منطقة البطن", "العقلة الذيلية", "قرون الاستشعار"],
+            correct: 0,
+            exp: "تقع جميع أنواع خياشيم الجمبري في منطقة الرأس الصدري (Cephalothorax) محمية بدرع الكاراباس."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "ما الجزء الذي يشمل جميع أجزاء الجهاز العصبي الواقعة خارج الدماغ والحبل الشوكي؟",
+            options: ["الجهاز العصبي المحيطي (الطرفي)", "الجهاز العصبي المركزي", "المخيخ", "النخاع المستطيل"],
+            correct: 0,
+            exp: "يتكون الجهاز العصبي من جهاز مركزي (الدماغ والحبل الشوكي) وجهاز محيطي يشمل الأعصاب الدماغية والشوكية المنتشرة خارج المركز."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "ماذا ينتج عن التحلل المائي للإيثاناميد في وجود وسط قاعدي مثل هيدروكسيد الصوديوم (NaOH)؟",
+            options: ["إيثانوات الصوديوم (أسيتات الصوديوم) وأمونيا", "حمض الفورميك وكلوريد الصوديوم", "إيثانول وثاني أكسيد الكربون", "ميثان وأكسيد الصوديوم"],
+            correct: 0,
+            exp: "تحلل الأميدات مائياً في وسط قاعدي (NaOH) يعطي ملح الحمض الكربوكسيلي المقابل (إيثانوات أو خلات الصوديوم) ويتصاعد غاز الأمونيا."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "إذا كان الزمن الدوري لكوكب يساوي $T = 8$، فكم يساوي نصف قطر مداره $r$ وفقاً لقانون كبلر الثالث ($T^2 = r^3$)؟",
+            options: ["$r = 4$", "$r = 8$", "$r = 64$", "$r = 2$"],
+            correct: 0,
+            exp: "بتطبيق قانون كبلر الثالث: $T^2 = r^3$، وبالتعويض عن $T = 8$ نجد أن $8^2 = 64 = r^3$. وبأخذ الجذر التكعيبي للطرفين: $r = \\sqrt[3]{64} = 4$."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "يُعد إفراز السم في العقرب مثالاً على أي نوع من أنواع التكيف؟",
+            options: ["التكيف الوظيفي (الفسيولوجي)", "التكيف التركيبي", "التكيف السلوكي", "التمويه"],
+            correct: 0,
+            exp: "إفراز السموم أو العرق أو الإنزيمات داخل الجسم هو قدرة أعضاء وأنسجة الكائن على أداء وظيفة كيميائية حيوية محددة، ويُسمى تكيفاً وظيفياً."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "بالاستعانة بالرسم التوضيحي لقانون الجذب العام لنيوتن، ما الصيغة الرياضية الصحيحة لقوة التجاذب بين جسمين؟",
+            diagram: "newton_gravity",
+            options: ["$F_g = G \\frac{m_1 m_2}{r^2}$", "$F_g = G \\frac{m_1 + m_2}{r}$", "$F_g = G \\frac{r^2}{m_1 m_2}$", "$F_g = m_1 m_2 r^2$"],
+            correct: 0,
+            exp: "ينص قانون الجذب العام لنيوتن (قانون التربيع العكسي) على أن قوة التجاذب تتناسب طردياً مع حاصل ضرب الكتلتين وعكسياً مع مربع المسافة بين مركزيهما."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "ما هو المنطقة في الفضاء ذات الكثافة المهولة والجاذبية الفائقة التي لا يستطيع حتى الضوء الإفلات منها؟",
+            options: ["الثقب الأسود", "القزم الأبيض", "السديم الكوكبي", "النجم النيوتروني"],
+            correct: 0,
+            exp: "الثقب الأسود منطقة من الزمكان ذات كثافة عالية جداً نتيجة انهيار نجم ضخم، وتمنع جاذبيته أي موجة أو إشعاع كهرومغناطيسي (بما فيه الضوء) من الإفلات."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "ما اسم الشريان الذي يوصل الدم إلى عين الجمبري؟",
+            options: ["الشريان البصري", "الشريان الرئوي", "الشريان الأبهر", "الشريان الكبدي"],
+            correct: 0,
+            exp: "يغذي العين في الجمبري شريان متخصص يُعرف بالشريان البصري."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "إلى أي طائفة ينتمي العقرب، وكم عدد أزواج الأرجل المفصلية في العنكبوتيات؟",
+            options: ["العنكبوتيات - 4 أزواج (8 أرجل)", "الحشرات - 3 أزواج (6 أرجل)", "القشريات - 5 أزواج", "عديدة الأرجل - 10 أزواج"],
+            correct: 0,
+            exp: "ينتمي العقرب والعنكبوت والقراد لطائفة العنكبوتيات، وتمتلك 4 أزواج من أرجل المشي (8 أرجل) بالإضافة لزوج من الكلابات."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "كيف تتخلص الديدان المفلطحة (مثل البلاناريا) من الفضلات الإخراجية؟",
+            options: ["عن طريق الخلايا اللهبية", "عن طريق أنابيب ملبيجي", "عن طريق الغدد الخضراء", "عن طريق النفريديا"],
+            correct: 0,
+            exp: "تحتوي الديدان المفلطحة على جهاز إخراجي بدائي يتكون من شبكة قنوات تنتهي بخلايا مهدبة تشبه لهب الشمعة تُسمى الخلايا اللهبية."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "ما تأثير خامس أكسيد الفوسفور ($P_2O_5$) على الأميدات عند التسخين؟",
+            options: ["ينتزع جزيء ماء لتكوين النيتريل", "يضيف مجموعة هيدروكسيل", "يؤكسدها إلى أحماض كربوكسيلية", "يختزلها إلى ألكانات"],
+            correct: 0,
+            exp: "يعمل خامس أكسيد الفوسفور كعامل نازع قوي للماء، فينتزع عناصر الماء ($H_2O$) من الأميدات الأولية محولاً إياها إلى نيتريلات."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "كيف تتناسب طاقة الفوتون ($E = \\frac{hc}{\\lambda}$) مع تردده وطوله الموجي؟",
+            options: ["طردياً مع التردد وعكسياً مع الطول الموجي", "عكسياً مع التردد وطردياً مع الطول الموجي", "طردياً مع كليهما", "عكسياً مع كليهما"],
+            correct: 0,
+            exp: "من العلاقة $E = h\\nu = \\frac{hc}{\\lambda}$، تزداد طاقة الفوتون بزيادة التردد الكهرومغناطيسي وتقل بزيادة الطول الموجي."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "ما هو المكون الرئيسي للغاز الطبيعي؟",
+            options: ["غاز الميثان ($CH_4$)", "غاز البروبان", "غاز الإيثيلين", "غاز الأستيلين"],
+            correct: 0,
+            exp: "يشكل غاز الميثان النسبة الأكبر (أكثر من 80-90%) من مكونات الغاز الطبيعي."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "أي من المركبات التالية تعطي أكسدتها التامة حمض البنزويك؟",
+            options: ["الطولوين (ميثيل بنزين) وإيثيل بنزين", "البنزين العطري فقط", "الفينول والأنيلين", "الهكسان الحلقي"],
+            correct: 0,
+            exp: "أكسدة أي سلسلة جانبية ألكيلية متصلة بحلقة البنزين (مثل الطولوين أو إيثيل بنزين) تعطي حمض البنزويك ($C_6H_5COOH$)."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "إذا كان العدد الذري لعنصر هو 82، فما عدد الإلكترونات في ذرته المتعادلة؟",
+            options: ["82 إلكترون سالب", "41 إلكترون سالب", "164 إلكترون سالب", "80 إلكترون سالب"],
+            correct: 0,
+            exp: "في الذرة المتعادلة كهربياً، يتساوى عدد البروتونات الموجبة (العدد الذري = 82) مع عدد الإلكترونات السالبة (82)."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "ما هو الجسيم الأولي الذي يُعد أحد المكونين الأساسيين للمادة في نظرية النموذج القياسي لفيزياء الجسيمات؟",
+            options: ["الكوارك (الركين)", "الفوتون", "الجرافيتون", "الأيون"],
+            correct: 0,
+            exp: "الكواركات (Quarks) واللبتونات هي الجسيمات الأولية الأساسية التي تشكل البروتونات والنيوترونات والمادة في النموذج القياسي."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "ما المصطلح العلمي لجسم وهمي مثالي يمتص كل الإشعاع الكهرومغناطيسي الساقط عليه ويشع إشعاعاً حرارياً على كافة الأطوال الموجية؟",
+            options: ["الجسم الأسود", "الجسم المعتم", "العاكس المثالي", "الثقب الأبيض"],
+            correct: 0,
+            exp: "الجسم الأسود (Black Body) هو نظام فيزيائي مثالي يمتص 100% من الأشعة الساقطة عليه دون أن يعكس شيئاً، ويعيد إشعاعها تبعاً لدرجة حرارته."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "ما الوعاء الدموي الوحيد الذي يحمل دماً غير مؤكسج من القلب إلى الرئتين؟",
+            options: ["الشريان الرئوي", "الوريد الرئوي", "الشريان الأورطي", "الوريد الأجوف العلوي"],
+            correct: 0,
+            exp: "جميع الشرايين تحمل دماً مؤكسجاً ما عدا الشريان الرئوي الذي ينقل الدم غير المؤكسج من البطين الأيمن إلى الرئتين لتنقيته."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "في أي جزء من نبات التين الشوكي يتم تخزين كميات كبيرة من الماء للتكيف مع البيئة الصحراوية؟",
+            options: ["الفروع (الألواح الساقية)", "الأوراق الشوكية", "الأزهار", "الجذور الهوائية"],
+            correct: 0,
+            exp: "تتحور الأوراق في التين الشوكي إلى أشواك لتقليل النتح، بينما تقوم السيقان المفلطحة (الألواح) بالبناء الضوئي وتخزين الماء."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "ما هو المبدأ الذي ينص على أنه لا يمكن تحديد موضع الجسيم وكمية حركته بدقة في آن واحد؟",
+            options: ["مبدأ الشك (عدم اليقين) لهايزنبرج", "مبدأ الاستبعاد لباولي", "مبدأ أرخميدس", "مبدأ باسكال"],
+            correct: 0,
+            exp: "ينص مبدأ عدم اليقين لهايزنبرج على أنه كلما زادت دقة قياس موضع الجسيم زاد مقدار الشك في قياس كمية حركته (سرعته)."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "ما التركيب الموجود على سطح نجم البحر ويعمل على تنظيف جسمه واقتناص الغذاء الصغير؟",
+            options: ["الملاقط الدقيقة", "اللوامس اللاسعة", "الخياشيم الريشية", "الدرع الكيتيني"],
+            correct: 0,
+            exp: "يمتلك نجم البحر ملاقط دقيقة (Pedicellariae) حول الأشواك تحمي سطحه وتنظفه من العوالق وتساعد في الإمساك بالفرائس."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "كم عدد حلقات جسم الجمبري إجمالاً، وكم عدد عضلاته الظهرية الباسطة والبطنية المثنية؟",
+            options: ["20 حلقة، و 2 ظهرية باسطة و 2 بطنية مثنية", "15 حلقة، و 4 ظهرية باسطة", "25 حلقة، و 6 بطنية مثنية", "12 حلقة، و 1 ظهرية باسطة"],
+            correct: 0,
+            exp: "يتكون جسم الجمبري من 20 عقلة (6 رأس، 8 صدر، 6 بطن)، ويحتوي على زوج من العضلات الظهرية الباسطة (2) وزوج من البطنية المثنية (2)."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "ما عدد حجرات القلب في الصرصور؟",
+            options: ["من 12 إلى 13 غرفة", "4 غرف", "غرفتان فقط", "3 غرف"],
+            correct: 0,
+            exp: "يتكون القلب الأنبوبي الظهري في الصرصور من سلسلة حجرات يتراوح عددها بين 12 إلى 13 غرفة مزودة بفتحات جانبية (ثقوب)."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "كيف تُسمى الكحولات وفقاً لنظام التسمية الدولي (IUPAC)؟",
+            options: ["ألكانول", "ألكانال", "ألكانون", "ألكانوات"],
+            correct: 0,
+            exp: "تُشتق أسماء الكحولات في نظام الأيوباك بإضافة المقطع (ول) إلى اسم الألكان المقابل ليصبح (ألكانول) مثل ميثانول وإيثانول."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "بماذا يُعرف حاصل قسمة طاقة الفوتون على تردده ($E / \\nu$)؟",
+            options: ["ثابت بلانك ($h$)", "سرعة الضوء ($c$)", "ثابت الجذب العام ($G$)", "ثابت أفوجادرو"],
+            correct: 0,
+            exp: "بما أن طاقة الفوتون $E = h \\times \\nu$، فإن قسمة الطاقة على التردد تساوي ثابت بلانك ($h = 6.626 \\times 10^{-34} \\text{ J}\\cdot\\text{s}$)."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "ما هي وحدة الشمعة (Candela) وما الذي تقيسه؟",
+            options: ["تقيس شدة الإضاءة (لمعان المصدر الضوئي)", "تقيس كتلة النجم", "تقيس حجم السائل", "تقيس درجة الحرارة"],
+            correct: 0,
+            exp: "الشمعة القياسية (cd) هي الوحدة الأساسية في النظام الدولي لقياس شدة الإضاءة واللمعان."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "كيف يُصنف الصوت الذي يبلغ تردده $25000\\text{ Hz}$؟",
+            options: ["موجات فوق سمعية", "موجات سمعية", "موجات تحت سمعية", "موجات كهرومغناطيسية"],
+            correct: 0,
+            exp: "يتراوح المدى السمعي للإنسان بين $20\\text{ Hz}$ و $20000\\text{ Hz}$، لذا فإن تردد $25000\\text{ Hz}$ يُعد فوق سمعي."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "كم يبلغ عدد فقرات العمود الفقري وعدد عظام الجمجمة في الإنسان البالغ؟",
+            options: ["33 فقرة و 22 عظمة", "26 فقرة و 14 عظمة", "30 فقرة و 28 عظمة", "35 فقرة و 20 عظمة"],
+            correct: 0,
+            exp: "يتكون العمود الفقري من 33 فقرة (7 عنقية، 12 صدرية، 5 قطنية، 5 عجزية، 4 عصعصية)، وتضم الجمجمة 22 عظمة."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "لماذا تمتلك ثعالب الصحراء (مثل ثعلب الفنك) آذاناً طويلة مقارنة بثعالب القطب؟",
+            options: ["لتشتيت الحرارة والحفاظ على برودة جسمها", "لتخزين الدهون والماء", "للحماية من الرمال فقط", "للتوازن أثناء القفز"],
+            correct: 0,
+            exp: "تعمل الآذان الطويلة الغنية بالأوعية الدموية كمشع حراري يخلص الجسم من الحرارة الزائدة في البيئات الحارة."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "من خلال الرسم التوضيحي لزوائد منطقة البطن في الجمبري، أي زوج من الزوائد يقع على العقلة رقم 20 ويساعده على العوم للخلف؟",
+            diagram: "shrimp_abdomen",
+            options: ["الرجلان الذيليتان (Uropods)", "الرجلان التناسليتان", "أرجل العوم الأمامية", "الأرجل الفكية"],
+            correct: 0,
+            exp: "تحمل العقلة البطنية السادسة (رقم 20 في الجسم) الزوج السادس من زوائد البطن وهما الرجلان الذيليتان اللتان تشكلان مع العجب مروحة ذيلية للعوم السريع للخلف."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "من الرسم التوضيحي لزوائد الصدر في الجمبري، ما وظيفة الزوائد المحمولة على العقل (10، 11، 12)؟",
+            diagram: "shrimp_thorax",
+            options: ["المشي والقبض على الغذاء والدفاع عن النفس", "إحداث تيار مائي للتنفس فقط", "السباحة السريعة للخلف", "الإحساس الكيماوي والتوازن"],
+            correct: 0,
+            exp: "الزوائد على العقل 10، 11، 12 هي أرجل كلابية (خطافية) تنتهي بكلاب، وتُستخدم في المشي والقبض على الطعام والدفاع."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "من الرسم التوضيحي لزوائد الرأس في الجمبري، أي زوج من الزوائد يقوم بطحن الغذاء ودفعه إلى الفم؟",
+            diagram: "shrimp_head",
+            options: ["اللحيان (العقلة 4)", "الزبانيان الأولان (العقلة 2)", "الزبانيان الثانيان (العقلة 3)", "الفكان الثانيان (العقلة 6)"],
+            correct: 0,
+            exp: "اللحيان (Mandibles) في العقلة الرابعة مزودان بأسنان وملماس لحيي لطحن الطعام ودفعه لداخل الفم."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "بالنظر إلى مخطط ترتيب الأمينات تصاعدياً، أي مما يلي يمثل أميناً ثانوياً؟",
+            diagram: "amines_order",
+            options: ["$R_2-NH$", "$R-NH_2$", "$R_3-N$", "$NH_3$"],
+            correct: 0,
+            exp: "يُشتق الأمين الثانوي باستبدال ذرتي هيدروجين في جزيء الأمونيا بمجموعتي ألكيل أو أريل ($R_2-NH$)."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "ماذا يُطلق على رهاب الأماكن الواسعة والميادين المفتوحة؟",
+            options: ["الأجاروفوبيا (Agoraphobia)", "الأكروفوبيا", "الكلوستروفوبيا", "الهيدروفوبيا"],
+            correct: 0,
+            exp: "الأجاروفوبيا هو الخوف المرضي من الأماكن المفتوحة أو المزدحمة التي يصعب الهروب منها."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "أي غدة تفرز هرمون الميلاتونين المسؤول عن تنظيم الساعة البيولوجية والنوم؟",
+            options: ["الغدة الصنوبرية", "الغدة الدرقية", "الغدة التيموسية", "الغدة الكظرية"],
+            correct: 0,
+            exp: "تقع الغدة الصنوبرية في تجويف الدماغ وتفرز هرمون الميلاتونين ليلاً لتنظيم دورة النوم والاستيقاظ."
+        },
+        {
+            cat: "أسئلة الامتحانات والرسومات",
+            q: "ما الهرمون الذي تفرزه الغدة التوتية (الزعترية) ويشرف على بناء المناعة وإنتاج الخلايا اللمفاوية؟",
+            options: ["هرمون ثيموسين (Thymosin)", "هرمون الثيروكسين", "هرمون الأدرينالين", "هرمون البرولاكتين"],
+            correct: 0,
+            exp: "تفرز الغدة التيموسية هرمون الثيموسين الذي يحفز نضج وتمايز الخلايا اللمفاوية التائية (T-cells) المسؤولة عن المناعة."
+        },
+
+        // --- القسم الثاني: الأحياء والتشريح ---
+        {
+            cat: "الأحياء والتشريح",
+            q: "ما العضية الخلوية المسؤولة عن إنتاج الطاقة (ATP) من خلال التنفس الخلوي؟",
+            options: ["الميتوكوندريا", "الريبوسومات", "أجسام جولجي", "الشبكة الإندوبلازمية"],
+            correct: 0,
+            exp: "تُعرف الميتوكوندريا ببيت الطاقة في الخلية لأنها تحول الجلوكوز والأكسجين إلى طاقة كيميائية في صورة جزيئات ATP."
+        },
+        {
+            cat: "الأحياء والتشريح",
+            q: "أين يتم تصنيع البروتين داخل الخلية؟",
+            options: ["الريبوسومات", "الليسوسومات", "الفجوة العصارية", "البلاستيدات"],
+            correct: 0,
+            exp: "تُعد الريبوسومات مصانع البروتين في الخلية، حيث تترجم الشفرة الوراثية المحمولة على mRNA إلى سلاسل عديد الببتيد."
+        },
+        {
+            cat: "الأحياء والتشريح",
+            q: "ما نوع الانقسام الخلوي الذي ينتج 4 خلايا جنسية (أمشاج) غير متماثلة وراثياً؟",
+            options: ["الانقسام الميوزي (المنصف)", "الانقسام الميتوزي (المتساوي)", "الانشطار الثنائي", "التبرعم"],
+            correct: 0,
+            exp: "يختزل الانقسام الميوزي عدد الكروموسومات إلى النصف ($n$) وينتج 4 أمشاج مختلفة وراثياً بفضل ظاهرة العبور الوراثي."
+        },
+        {
+            cat: "الأحياء والتشريح",
+            q: "كم عدد الكروموسومات في الخلية الجسدية الطبيعية للإنسان؟",
+            options: ["46 كروموسوم (23 زوجاً)", "23 كروموسوم", "44 كروموسوم", "48 كروموسوم"],
+            correct: 0,
+            exp: "تحتوي كل خلية جسدية في الإنسان على 46 كروموسوماً، بينما تحتوي الخلايا الجنسية (البويضة أو الحيوان المنوي) على 23 كروموسوماً."
+        },
+        {
+            cat: "الأحياء والتشريح",
+            q: "أي جزء من الدماغ مسؤول عن تنسيق الحركات وتنظيم توازن الجسم؟",
+            options: ["المخيخ", "النخاع المستطيل", "الفص الجبهي", "تحت المهاد"],
+            correct: 0,
+            exp: "يتحكم المخيخ في التوازن العضلي والحركي الدقيق للجسم، بينما يتحكم النخاع المستطيل في التنفس وضربات القلب."
+        },
+        {
+            cat: "الأحياء والتشريح",
+            q: "ما النسيج النباتي المسؤول عن نقل الماء والأملاح المعدنية من الجذور إلى الأوراق؟",
+            options: ["نسيج الخشب", "نسيج اللحاء", "النسيج البرنشيمي", "البشرة"],
+            correct: 0,
+            exp: "ينقل نسيج الخشب الماء والأملاح من أسفل لأعلى، بينما ينقل نسيج اللحاء الغذاء الجاهز (السكريات) من الأوراق لباقي أجزاء النبات."
+        },
+        {
+            cat: "الأحياء والتشريح",
+            q: "لماذا لا تُصنف الفيروسات ككائنات حية حقيقية؟",
+            options: ["لأنها لا تتكاثر ولا تقوم بوظائف حيوية إلا داخل خلايا عائل", "لأنها تحتوي على جدار خلوي من السليلوز", "لأنها تتنفس لا هوائياً فقط", "لأنها أكبر حجماً من البكتيريا"],
+            correct: 0,
+            exp: "الفيروسات دقائق غير خلوية تتكون من مادة وراثية وغلاف بروتيني، وتكون خاملة تماماً خارج الخلايا الحية."
+        },
+        {
+            cat: "الأحياء والتشريح",
+            q: "مم يتكون الجدار الخلوي في مملكة الفطريات؟",
+            options: ["مادة الكيتين", "مادة السليلوز", "الببتيدوجليكان", "كربونات الكالسيوم"],
+            correct: 0,
+            exp: "تتميز الفطريات بوجود جدر خلوية مكونة من الكيتين (وهو سكر معقد نيتروجيني)، على عكس النباتات التي تتكون جدرها من السليلوز."
+        },
+        {
+            cat: "الأحياء والتشريح",
+            q: "كيف يتكاثر كل من الهيدرا والخميرة لاجنسياً؟",
+            options: ["بالتبرعم", "بالانشطار الثنائي", "بالاقتران", "بالجراثيم"],
+            correct: 0,
+            exp: "تتكاثر الهيدرا والخميرة بالتبرعم، بينما تتكاثر الأميبا والبرامسيوم بالانشطار الثنائي، والبلاناريا بالتجدد."
+        },
+        {
+            cat: "الأحياء والتشريح",
+            q: "كيف تتكاثر حشرة المن ونحل العسل لإنتاج أفراد جديدة دون إخصاب؟",
+            options: ["بالتوالد البكري", "بالاقتران السلمي", "بالتقطع", "بالأبواغ"],
+            correct: 0,
+            exp: "التوالد البكري هو قدرة البويضة غير المخصبة على النمو لتكوين فرد جديد، كما يحدث في إنتاج ذكور نحل العسل وحشرة المن."
+        },
+        {
+            cat: "الأحياء والتشريح",
+            q: "أين يحدث إخصاب البويضة في الجهاز التناسلي لأنثى الإنسان؟",
+            options: ["في الثلث الأول من قناة فالوب", "في تجويف الرحم", "داخل المبيض", "في عنق الرحم"],
+            correct: 0,
+            exp: "تلتقي الحيوانات المنوية بالبويضة الناضجة ويتم الإخصاب في قناة فالوب، ثم تنتقل البويضة المخصبة لتنغرس في بطانة الرحم."
+        },
+        {
+            cat: "الأحياء والتشريح",
+            q: "ما الكائن الحي المسبب لمرض الملاريا، وما العائل الناقل له؟",
+            options: ["طفيلي البلازموديوم وتنقله أنثى بعوضة الأنوفليس", "بكتيريا السالمونيلا وينقلها الذباب", "فيروس HIV وينقله الدم", "دودة البلهارسيا وتنقلها القواقع"],
+            correct: 0,
+            exp: "البلازموديوم هو كائن أولي طفيلي يسبب حمى الملاريا، وتنقله أنثى بعوضة الأنوفليس عند لدغ الإنسان."
+        },
+        {
+            cat: "الأحياء والتشريح",
+            q: "ما الإنزيمات المستخلصة من البكتيريا وتُستخدم في الهندسة الوراثية لقص الحمض النووي عند تتابعات محددة؟",
+            options: ["إنزيمات القطع (التقييد)", "إنزيم الببسين", "إنزيم الأميليز", "إنزيم الليبيز"],
+            correct: 0,
+            exp: "تُستخدم إنزيمات القطع البكتيرية كمقصات جزيئية لقص DNA في مواقع محددة تمهيداً لربطه بجينات أخرى."
+        },
+        {
+            cat: "الأحياء والتشريح",
+            q: "ما التركيب المسؤول عن الإخراج في الصرصور؟",
+            options: ["أنابيب ملبيجي", "الغدد الخضراء", "الكليتان", "الخلايا اللهبية"],
+            correct: 0,
+            exp: "تتخلص الحشرات مثل الصرصور من الفضلات النيتروجينية في صورة حمض البوليك عبر أنابيب ملبيجي، بينما يستخدم الجمبري الغدد الخضراء."
+        },
+        {
+            cat: "الأحياء والتشريح",
+            q: "ما اسم الغطاء الكيتيني الصلب الذي يغطي منطقة الرأس الصدري في الجمبري؟",
+            options: ["الكاراباس (الدرع)", "العجب", "العباءة", "الصدفة المصراعية"],
+            correct: 0,
+            exp: "يُسمى الدرع الواقي لمنطقة الرأس والصدر الملتحمين في القشريات بالكاراباس (Carapace)."
+        },
+        {
+            cat: "الأحياء والتشريح",
+            q: "ما نوع الجهاز الدوري في الجمبري والحشرات؟",
+            options: ["جهاز دوري مفتوح", "جهاز دوري مغلق", "جهاز دوري مزدوج", "لا يوجد جهاز دوري"],
+            correct: 0,
+            exp: "في المفصليات (كالجمبري والصرصور) يضخ القلب الدم في تجاويف الجسم مباشرة ليغمر الأنسجة دون أوعية شعرية مغلقة."
+        },
+
+        // --- القسم الثالث: الكيمياء ---
+        {
+            cat: "الكيمياء",
+            q: "ما العنصر الوحيد في الجدول الدوري الذي لا تحتوي نواته على نيوترونات؟",
+            options: ["الهيدروجين-1 ($^1_1H$)", "الهيليوم-4", "الليثيوم-7", "الكربون-12"],
+            correct: 0,
+            exp: "يتكون نظير الهيدروجين الشائع (البروتيوم) من بروتون واحد في النواة وإلكترون واحد يدور حولها، ولا يحتوي على أي نيوترون."
+        },
+        {
+            cat: "الكيمياء",
+            q: "ما العنصر الأعلى كهروسالبية بين جميع عناصر الجدول الدوري؟",
+            options: ["الفلور ($F$)", "الأكسجين ($O$)", "الكلور ($Cl$)", "السيزيوم ($Cs$)"],
+            correct: 0,
+            exp: "الفلور هو أكثر العناصر كهروسالبية (3.98 على مقياس باولنغ) لصغر نصف قطره الذري وشدة جذبه لإلكترونات الرابطة."
+        },
+        {
+            cat: "الكيمياء",
+            q: "أي من المجموعات التالية تمثل عناصرها جزيئات ثنائية الذرة وتُعرف بالهالوجينات؟",
+            options: ["المجموعة 17 (7A)", "المجموعة 18 (الصفرية)", "المجموعة 1 (1A)", "المجموعة 2 (2A)"],
+            correct: 0,
+            exp: "عناصر المجموعة 17 (الفلور، الكلور، البروم، اليود) هي الهالوجينات وتوجد في الطبيعة في صورة جزيئات ثنائية الذرة ($F_2, Cl_2, Br_2, I_2$)."
+        },
+        {
+            cat: "الكيمياء",
+            q: "ما نوع الرابطة الكيميائية التي تنشأ نتيجة انتقال إلكترونات من فلز إلى لافلز؟",
+            options: ["الرابطة الأيونية", "الرابطة التساهمية", "الرابطة الفلزية", "الرابطة الهيدروجينية"],
+            correct: 0,
+            exp: "تنشأ الرابطة الأيونية بالتجاذب الكهروستاتيكي بين أيون موجب (فلز فقد إلكترونات) وأيون سالب (لافلز اكتسب إلكترونات)."
+        },
+        {
+            cat: "الكيمياء",
+            q: "كيف عرّف العالم سفانت أرهينيوس الحمض؟",
+            options: ["مادة تتأين في الماء وتنتج أيونات الهيدروجين ($H^+$)", "مادة تستقبل البروتونات ($H^+$)", "مادة تمنح زوجاً من الإلكترونات", "مادة تزيد تركيز أيونات ($OH^-$)"],
+            correct: 0,
+            exp: "وفقاً لتعريف أرهينيوس (1887)، الحمض يذوب في الماء ليزيد تركيز أيونات $H^+$، بينما القاعدة تزيد تركيز أيونات $OH^-$."
+        },
+        {
+            cat: "الكيمياء",
+            q: "لماذا تُعد الأميدات مركبات أمفوتيرية (مترددة)؟",
+            options: ["لاحتوائها على مجموعة الأمين القاعدية ومجموعة الكربونيل الحمضية", "لأنها لا تذوب في الماء إطلاقاً", "لأنها تتكون من الكربون والهيدروجين فقط", "لأن درجة غليانها منخفضة جداً"],
+            correct: 0,
+            exp: "تحتوي الأميدات ($R-CONH_2$) على مجموعة أمين ذات صفة قاعدية ومجموعة كربونيل ساحب للإلكترونات مما يعادل تأثير الآخر فتسلك سلوكاً متردداً."
+        },
+        {
+            cat: "الكيمياء",
+            q: "لماذا ترتفع درجة غليان الأميدات الأولية والثانوية مقارنة بالأميدات الثالثية؟",
+            options: ["لوجود روابط هيدروجينية بين جزيئات الأولية والثانوية", "لأن الكتلة المولية للأميدات الثالثية أقل", "لأن الأميدات الثالثية مركبات أيونية", "لعدم وجود ذرة نيتروجين في الثالثية"],
+            correct: 0,
+            exp: "تحتوي الأميدات الأولية والثانوية على ذرات هيدروجين مرتبطة مباشرة بالنيتروجين فتكون روابط هيدروجينية قوية، بينما تفتقر الثالثية لذرات H على النيتروجين."
+        },
+        {
+            cat: "الكيمياء",
+            q: "ما الصيغة العامة للألكانات المشبعة؟",
+            options: ["$C_nH_{2n+2}$", "$C_nH_{2n}$", "$C_nH_{2n-2}$", "$C_nH_n$"],
+            correct: 0,
+            exp: "الألكانات هيدروكربونات مشبعة ذات روابط أحادية صيغتها العامة $C_nH_{2n+2}$ مثل الميثان ($CH_4$) والإيثان ($C_2H_6$)."
+        },
+        {
+            cat: "الكيمياء",
+            q: "ما التحول الفيزيائي الذي تتحول فيه المادة مباشرة من الحالة الصلبة إلى الغازية دون المرور بالحالة السائلة؟",
+            options: ["التسامي", "التكثف", "الانصهار", "التبخر"],
+            correct: 0,
+            exp: "التسامي هو تحول المادة من الصلب للغاز مباشرة كما يحدث في اليود الصلب وثاني أكسيد الكربون الصلب (الجليد الجاف)."
+        },
+        {
+            cat: "الكيمياء",
+            q: "ما الغاز الرئيسي المسبب لظاهرة المطر الحمضي عند ذوبانه في مياه الأمطار؟",
+            options: ["ثاني أكسيد الكبريت ($SO_2$) وأكاسيد النيتروجين", "غاز الأوزون ($O_3$)", "غاز الهيليوم ($He$)", "غاز الميثان ($CH_4$)"],
+            correct: 0,
+            exp: "يتفاعل ثاني أكسيد الكبريت الناتج من حرق الوقود الأحفوري مع بخار الماء في الجو مكوناً حمض الكبريتوز وحمض الكبريتيك."
+        },
+
+        // --- القسم الرابع: الفيزياء ---
+        {
+            cat: "الفيزياء",
+            q: "متى يكون الشغل الفيزيائي المبذول ($W = F \\cdot d \\cos\\theta$) مساوياً للصفر رغم وجود قوة مؤثرة؟",
+            options: ["إذا كانت الإزاحة صفراً أو القوة عمودية على اتجاه الإزاحة", "إذا كانت القوة في نفس اتجاه الإزاحة", "إذا زادت كتلة الجسم للضعف", "إذا تحرك الجسم بسرعة منتظمة"],
+            correct: 0,
+            exp: "ينعدم الشغل عندما لا يتحرك الجسم ($d = 0$) أو عندما تكون الزاوية بين القوة والإزاحة $90^\\circ$ لأن $\\cos 90^\\circ = 0$."
+        },
+        {
+            cat: "الفيزياء",
+            q: "ما الجهاز المستخدم لقياس شدة التيار الكهربائي وكيف يُوصل في الدائرة؟",
+            options: ["الأميتر ويُوصل على التوالي", "الفولتميتر ويُوصل على التوالي", "الأميتر ويُوصل على التوازي", "الأوميتر ويُوصل على التوازي"],
+            correct: 0,
+            exp: "يُستخدم الأميتر لقياس شدة التيار بالأمبير ويُوصل على التوالي ليمر به نفس التيار، بينما يُوصل الفولتميتر على التوازي لقياس فرق الجهد."
+        },
+        {
+            cat: "الفيزياء",
+            q: "ما نوع العدسة المستخدمة في النظارات الطبية لتصحيح عيب طول النظر؟",
+            options: ["العدسة المحدبة (اللامة)", "العدسة المقعرة (المفرقة)", "العدسة المستوية", "العدسة الأسطوانية"],
+            correct: 0,
+            exp: "في طول النظر تتكون الصورة خلف الشبكية، فتُستخدم عدسة محدبة لتجميع الأشعة الضوئية قبل دخولها العين لتسقط على الشبكية بدقة."
+        },
+        {
+            cat: "الفيزياء",
+            q: "أي ألوان الطيف المرئي يمتلك أقصر طول موجي وأعلى تردد؟",
+            options: ["اللون البنفسجي", "اللون الأحمر", "اللون الأخضر", "اللون الأصفر"],
+            correct: 0,
+            exp: "يمتلك الضوء البنفسجي أقصر طول موجي (حوالي 400 نانومتر) وأعلى طاقة وتردد، بينما يمتلك الأحمر أطول طول موجي."
+        },
+        {
+            cat: "الفيزياء",
+            q: "لماذا لا ينتقل الصوت في الفضاء الخارجي بينما ينتقل ضوء الشمس إلينا؟",
+            options: ["لأن الصوت موجة ميكانيكية تحتاج وسطاً مادياً، والضوء موجة كهرومغناطيسية", "لأن سرعة الصوت أكبر من سرعة الضوء", "لأن الفضاء بارد جداً", "لأن الجاذبية تمنع انتقال الصوت"],
+            correct: 0,
+            exp: "تنتقل الحرارة والضوء من الشمس عبر فراغ الفضاء بالإشعاع الكهرومغناطيسي، أما الصوت فيلزم لانتقاله اهتزاز جزيئات وسط مادي."
+        },
+        {
+            cat: "الفيزياء",
+            q: "ما المبدأ الفيزيائي الذي يعتمد عليه عمل المكبس الهيدروليكي في رفع السيارات؟",
+            options: ["مبدأ باسكال", "مبدأ أرخميدس", "مبدأ برنولي", "قانون بويل"],
+            correct: 0,
+            exp: "ينص مبدأ باسكال على أن الضغط المؤثر على سائل محصور ينتقل بتمامه وبالتساوي إلى جميع أجزاء السائل وجدران الإناء."
+        },
+        {
+            cat: "الفيزياء",
+            q: "ما الجهاز المستخدم لقياس الإشعاعات النووية والنشاط الإشعاعي؟",
+            options: ["عداد جايجر", "الباروميتر", "المانوميتر", "الأنيمومتر"],
+            correct: 0,
+            exp: "يُستخدم عداد جايجر للكشف عن الإشعاعات المؤينة (ألفا، بيتا، جاما) وقياس شدتها."
+        },
+        {
+            cat: "الفيزياء",
+            q: "ما نوع الرافعة التي يمثلها المقص العادي؟",
+            options: ["رافعة من النوع الأول", "رافعة من النوع الثاني", "رافعة من النوع الثالث", "بكرة متحركة"],
+            correct: 0,
+            exp: "في المقص تقع نقطة الارتكاز في المنتصف بين القوة (المقبض) والمقاومة (الشفرات)، لذا فهو رافعة من النوع الأول."
+        },
+
+        // --- القسم الخامس: علوم الأرض والفضاء ---
+        {
+            cat: "علوم الأرض والفضاء",
+            q: "ما العناصر الرئيسية التي تتكون منها نواة (لب) الأرض؟",
+            options: ["الحديد والنيكل", "السيليكون والألومنيوم", "الكالسيوم والمغنيسيوم", "الكربون والكبريت"],
+            correct: 0,
+            exp: "يتكون لب الأرض الداخلي (الصلب) والخارجي (السائل) بشكل أساسي من فلزي الحديد والنيكل، وهما المسؤولان عن المجال المغناطيسي للأرض."
+        },
+        {
+            cat: "علوم الأرض والفضاء",
+            q: "في أي طبقة من طبقات الغلاف الجوي تتركز طبقة الأوزون التي تحمي الأرض من الأشعة فوق البنفسجية؟",
+            options: ["الستراتوسفير", "التروبوسفير", "الميزوسفير", "الثرموسفير"],
+            correct: 0,
+            exp: "تقع طبقة الأوزون ($O_3$) في طبقة الستراتوسفير وتمتص معظم الأشعة فوق البنفسجية الضارة القادمة من الشمس."
+        },
+        {
+            cat: "علوم الأرض والفضاء",
+            q: "ما الكوكب الذي يتكون معظم غلافه الجوي الكثيف من ثاني أكسيد الكربون السام ويُعد الأشد حرارة؟",
+            options: ["كوكب الزهرة", "كوكب عطارد", "كوكب المريخ", "كوكب زحل"],
+            correct: 0,
+            exp: "كوكب الزهرة محاط بغلاف كثيف من ثاني أكسيد الكربون وسحب حمض الكبريتيك مما يسبب ظاهرة احتباس حراري هائلة."
+        },
+        {
+            cat: "علوم الأرض والفضاء",
+            q: "أين يقع حزام الكويكبات الرئيسي في المجموعة الشمسية؟",
+            options: ["بين مداري المريخ والمشتري", "بين مداري الأرض والمريخ", "بين مداري زحل وأورانوس", "خلف مدار نبتون"],
+            correct: 0,
+            exp: "يفصل حزام الكويكبات بين الكواكب الداخلية الصخرية والكواكب الخارجية العملاقة ويقع بين المريخ والمشتري."
+        },
+        {
+            cat: "علوم الأرض والفضاء",
+            q: "ما المقياس المستخدم لترتيب المعادن حسب صلابتها، وما أكثر المعادن صلابة؟",
+            options: ["مقياس موس - الألماس", "مقياس ريختر - الكوارتز", "مقياس كلفن - الجرانيت", "مقياس باسكال - التلك"],
+            correct: 0,
+            exp: "يتدرج مقياس موس للصلابة من 1 (التلك الأقل صلابة) إلى 10 (الألماس الأكثر صلابة)."
+        },
+        {
+            cat: "علوم الأرض والفضاء",
+            q: "ما الفرق الأساسي بين التجوية والتعرية في جيولوجيا الأرض؟",
+            options: ["التجوية تفتيت الصخور في مكانها، والتعرية نقل الفتات الصخري", "التجوية نقل الصخور، والتعرية ترسيبها", "التجوية تحدث في البحار فقط", "لا يوجد فرق بينهما"],
+            correct: 0,
+            exp: "التجوية هي عملية تكسير وتحلل الصخور في موقعها الأصلي، بينما التعرية هي نقل هذا الفتات بواسطة الرياح أو المياه الجارية."
+        },
+        {
+            cat: "علوم الأرض والفضاء",
+            q: "ما الأجهزة المستخدمة لقياس كل من الضغط الجوي وسرعة الرياح على الترتيب؟",
+            options: ["الباروميتر والأنيمومتر", "المانوميتر والترمومتر", "الهيجروميتر والأميتر", "السيزموجراف والباروميتر"],
+            correct: 0,
+            exp: "يقيس الباروميتر الضغط الجوي، بينما يقيس الأنيمومتر سرعة الرياح."
+        },
+
+        // --- القسم السادس: المعادلات والتفاعلات الكيميائية ---
+        {
+            cat: "المعادلات والتفاعلات",
+            q: "ما المعادلة الموزونة الصحيحة لتفاعل احتراق غاز البيوتان ($C_4H_{10}$) احتراقاً تاماً في الأكسجين؟",
+            options: [
+                "$2C_4H_{10} + 13O_2 \\rightarrow 8CO_2 + 10H_2O$",
+                "$C_4H_{10} + 6O_2 \\rightarrow 4CO_2 + 5H_2O$",
+                "$2C_4H_{10} + 10O_2 \\rightarrow 8CO_2 + 10H_2O$",
+                "$C_4H_{10} + 13O_2 \\rightarrow 4CO_2 + 5H_2O$"
+            ],
+            correct: 0,
+            exp: "لوزن المعادلة: نضرب $C_4H_{10}$ في 2 لنحصل على 8 ذرات كربون ($8CO_2$) و 20 ذرة هيدروجين ($10H_2O$)، فيكون مجموع الأكسجين في النواتج $16 + 10 = 26$ ذرة أي $13O_2$."
+        },
+        {
+            cat: "المعادلات والتفاعلات",
+            q: "ما نوع التفاعل الكيميائي الممثل بالمعادلة: $CaCO_3 \\xrightarrow{\\Delta} CaO + CO_2$؟",
+            options: ["تفاعل تحلل (انحلال حراري)", "تفاعل اتحاد مباشر", "تفاعل إحلال مزدوج", "تفاعل تعادل"],
+            correct: 0,
+            exp: "تتفكك فيه مادة واحدة (كربونات الكالسيوم) بالحرارة إلى مادتين أبسط هما أكسيد الكالسيوم وثاني أكسيد الكربون."
+        },
+        {
+            cat: "المعادلات والتفاعلات",
+            q: "ماذا يتكون عند خلط محلول نترات الفضة ($AgNO_3$) مع محلول كلوريد الصوديوم ($NaCl$)؟",
+            options: ["راسب أبيض من كلوريد الفضة ($AgCl$) ومحلول نترات الصوديوم", "راسب أصفر من يوديد الرصاص", "يتصاعد غاز الهيدروجين", "راسب أزرق من هيدروكسيد النحاس"],
+            correct: 0,
+            exp: "تفاعل إحلال مزدوج (ترسيب): $AgNO_3 + NaCl \\rightarrow AgCl\\downarrow + NaNO_3$، حيث يترسب كلوريد الفضة الأبيض."
+        },
+        {
+            cat: "المعادلات والتفاعلات",
+            q: "ما ناتج تفاعل الأسترة بين حمض الإيثانويك ($CH_3COOH$) والإيثانول ($C_2H_5OH$) في وجود عامل حفاز حمضي؟",
+            options: ["إيثانوات الإيثيل ($CH_3COOC_2H_5$) وماء ($H_2O$)", "إيثوكسيد الصوديوم وهيدروجين", "ثاني أكسيد الكربون وماء", "أسيتاميد وأمونيا"],
+            correct: 0,
+            exp: "تفاعل أسترة فيشر: يتحد الحمض الكربوكسيلي مع الكحول بنزع جزيء ماء لتكوين الإستر المميز برائحته العطرية."
+        },
+        {
+            cat: "المعادلات والتفاعلات",
+            q: "ما المعادلة التي تمثل عملية التخمر الكحولي للجلوكوز؟",
+            options: [
+                "$C_6H_{12}O_6 \\rightarrow 2C_2H_5OH + 2CO_2$",
+                "$C_6H_{12}O_6 + 6O_2 \\rightarrow 6CO_2 + 6H_2O$",
+                "$6CO_2 + 6H_2O \\rightarrow C_6H_{12}O_6 + 6O_2$",
+                "$C_6H_{12}O_6 \\rightarrow 2CH_3COOH + O_2$"
+            ],
+            correct: 0,
+            exp: "في غياب الأكسجين (التنفس اللاهوائي في الخميرة)، يتحول جزيء الجلوكوز إلى جزيئين من الإيثانول ($C_2H_5OH$) وجزيئين من ثاني أكسيد الكربون."
+        },
+        {
+            cat: "المعادلات والتفاعلات",
+            q: "ما نوع التفاعل الكيميائي: $Ca + 2H_2O \\rightarrow Ca(OH)_2 + H_2\\uparrow$؟",
+            options: ["إحلال بسيط مع تصاعد غاز الهيدروجين", "تفاعل تعادل", "تفاعل أسترة", "انحلال كهربائي"],
+            correct: 0,
+            exp: "يحل فلز الكالسيوم النشط محل هيدروجين الماء مكوناً هيدروكسيد الكالسيوم ويتصاعد غاز الهيدروجين."
+        },
+        {
+            cat: "المعادلات والتفاعلات",
+            q: "ما المعاملات الصحيحة لوزن معادلة احتراق الأوكتان (الوقود): $\\_C_8H_{18} + \\_O_2 \\rightarrow \\_CO_2 + \\_H_2O$؟",
+            options: ["$2, 25, 16, 18$", "$1, 12, 8, 9$", "$2, 16, 16, 18$", "$1, 25, 8, 9$"],
+            correct: 0,
+            exp: "المعادلة الموزونة هي: $2C_8H_{18} + 25O_2 \\rightarrow 16CO_2 + 18H_2O$ لتساوي عدد ذرات الكربون (16) والهيدروجين (36) والأكسجين (50) في الطرفين."
+        }
+    ];
+
+    let currentCategory = 'all';
+    let currentZoom = 1;
+    let answeredCount = 0;
+    let correctCount = 0;
+    let userAnswers = {}; // تخزين إجابات المستخدم لكل سؤال
+
+    function init() {
+        document.getElementById('count-all').innerText = quizData.length;
+        renderQuestions();
+    }
+
+    function changeZoom(delta) {
+        currentZoom = Math.min(1.6, Math.max(0.75, +(currentZoom + delta).toFixed(2)));
+        applyZoom();
+    }
+
+    function resetZoom() {
+        currentZoom = 1;
+        applyZoom();
+    }
+
+    function applyZoom() {
+        document.documentElement.style.setProperty('--zoom-scale', currentZoom);
+        document.getElementById('zoomVal').innerText = Math.round(currentZoom * 100) + '%';
+    }
+
+    function toggleDiagramZoom(el) {
+        const box = el.closest('.diagram-box');
+        box.classList.toggle('zoomed');
+    }
+
+    function setCategory(cat, btn) {
+        currentCategory = cat;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderQuestions();
+    }
+
+    function filterQuestions() {
+        renderQuestions();
+    }
+
+    function updateScore() {
+        document.getElementById('scoreDisplay').innerText = `النتيجة: ${correctCount} / ${answeredCount}`;
+    }
+
+    function resetQuiz() {
+        answeredCount = 0;
+        correctCount = 0;
+        userAnswers = {};
+        updateScore();
+        renderQuestions();
+    }
+
+    function selectOption(qIndex, optIndex) {
+        if (userAnswers[qIndex] !== undefined) return; // منع تغيير الإجابة بعد الاختيار
+
+        userAnswers[qIndex] = optIndex;
+        answeredCount++;
+        const qObj = quizData[qIndex];
+        if (optIndex === qObj.correct) {
+            correctCount++;
+        }
+        updateScore();
+
+        // تحديث واجهة السؤال فوراً
+        const card = document.getElementById(`q-card-${qIndex}`);
+        const buttons = card.querySelectorAll('.option-btn');
+        buttons.forEach((btn, idx) => {
+            btn.disabled = true;
+            if (idx === qObj.correct) {
+                btn.classList.add('correct');
+            } else if (idx === optIndex) {
+                btn.classList.add('wrong');
+            }
+        });
+
+        const expBox = document.getElementById(`exp-${qIndex}`);
+        expBox.classList.add('show');
+    }
+
+    function renderQuestions() {
+        const container = document.getElementById('quizContainer');
+        const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+        container.innerHTML = '';
+
+        const letters = ['أ', 'ب', 'ج', 'د'];
+
+        quizData.forEach((item, index) => {
+            const matchCat = currentCategory === 'all' || item.cat === currentCategory;
+            const matchSearch = !searchTerm || 
+                item.q.toLowerCase().includes(searchTerm) || 
+                item.exp.toLowerCase().includes(searchTerm) ||
+                item.options.some(o => o.toLowerCase().includes(searchTerm));
+
+            if (!matchCat || !matchSearch) return;
+
+            const isAnswered = userAnswers[index] !== undefined;
+            const chosenOpt = userAnswers[index];
+
+            let diagramHTML = '';
+            if (item.diagram && diagrams[item.diagram]) {
+                diagramHTML = `
+                    <div class="diagram-box" onclick="toggleDiagramZoom(this)">
+                        ${diagrams[item.diagram]}
+                        <div><span class="diagram-hint">🔍 اضغط على الرسم للتكبير / التصغير (Zoom)</span></div>
+                    </div>
+                `;
+            }
+
+            let optionsHTML = item.options.map((opt, oIdx) => {
+                let extraClass = '';
+                if (isAnswered) {
+                    if (oIdx === item.correct) extraClass = 'correct';
+                    else if (oIdx === chosenOpt) extraClass = 'wrong';
+                }
+                return `
+                    <button class="option-btn ${extraClass}" 
+                            ${isAnswered ? 'disabled' : ''} 
+                            onclick="selectOption(${index}, ${oIdx})">
+                        <span class="option-letter">${letters[oIdx]}</span>
+                        <span>${opt}</span>
+                    </button>
+                `;
+            }).join('');
+
+            const cardHTML = `
+                <div class="question-card" id="q-card-${index}">
+                    <div class="q-header">
+                        <span class="q-num">سؤال ${index + 1}</span>
+                        <span class="q-cat">${item.cat}</span>
+                    </div>
+                    <div class="q-text">${item.q}</div>
+                    ${diagramHTML}
+                    <div class="options-grid">
+                        ${optionsHTML}
+                    </div>
+                    <div class="explanation-box ${isAnswered ? 'show' : ''}" id="exp-${index}">
+                        <div class="explanation-title">💡 الإجابة الصحيحة والشرح التفصيلي:</div>
+                        <div class="explanation-text">${item.exp}</div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', cardHTML);
+        });
+
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            MathJax.typesetPromise();
+        }
+    }
+
+    init();
+</script>
+</body>
+</html>
